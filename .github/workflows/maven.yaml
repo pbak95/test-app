@@ -44,7 +44,7 @@ jobs:
 
             let NEW_MINOR_NUM=$MINOR_NUM+1
 
-            echo $MAJOR_NUM.$NEW_MINOR_NUM.$PATCH_NUM-build.${CI_COMMIT_SHORT_SHA}
+            echo $MAJOR_NUM.$NEW_MINOR_NUM.$PATCH_NUM-build.${GITHUB_SHA}
           }
 
           # Fetch git tags with versions different than hotfix, ignore grep not match as a part of logic related with version initialisation
@@ -57,7 +57,7 @@ jobs:
             PREV_VERSION=0.0.0
           fi
 
-          export HOTFIX="$(echo $CI_COMMIT_BRANCH | sed -n "s/^hotfix\/\([0-9.]*\).*/\1/p")"
+          export HOTFIX="$(echo $GITHUB_REF_NAME | sed -n "s/^hotfix\/\([0-9.]*\).*/\1/p")"
           if [ $HOTFIX ] || [ "${RELEASE,,}" == patch ] ; then
             export PREV_VERSION=$HOTFIX
             echo 'Overriding hotfix base' $RELEASE 'version'
