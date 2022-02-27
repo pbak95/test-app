@@ -8,6 +8,8 @@ on: [push]
 jobs:
   calculate-version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version-output-step.outputs.version-output }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -76,6 +78,8 @@ jobs:
           echo $RELEASE_VERSION > version.txt
 
           echo 'New version:' $RELEASE_VERSION
+      - id: version-output-step
+        run: echo "::set-output name=version-output::${RELEASE_VERSION}"
       - name: Upload version file
         uses: actions/upload-artifact@v2
         with:
@@ -87,24 +91,57 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Set up JDK 16
         uses: actions/setup-java@v2
         with:
-          java-version: '17'
+          java-version: '16'
           distribution: 'temurin'
           cache: maven
       - name: Download version file
         uses: actions/download-artifact@v2
         with:
           name: version
+      - run: RELEASE_VERSION=$(cat version.txt)
       - name: Print current version
-        run: less version.txt
+        run: echo $RELEASE_VERSION
+      - name: Print version from output
+        run: echo ${{needs.calculate-version.outputs.version}}
+      - run: sed -i -e "s/<version>local<\/version>/<version>${RELEASE_VERSION}<\/version>/" pom.xml
       - name: Build with Maven
         run: mvn verify
-  publish:
+      - name: Upload JAR file
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: target/*.jar
+  docker:
     runs-on: ubuntu-latest
-    needs: [build]
-    if: ${{ github.ref_type == 'branch' && github.ref_name == 'main' }}
+    needs: build
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
-      - name: Here will be docker build
-        run: echo 'building docker image'
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
+      - name: Download JAR file
+        uses: actions/download-artifact@v2
+        with:
+          name: app
+          path: target/
+      - name: Build and push to local registry
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: localhost:5000/pbak95/test-app:latest
+      - name: Inspect
+        run: |
+          docker buildx imagetools inspect localhost:5000/pbak95/test-app:latest
