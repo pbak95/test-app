@@ -101,6 +101,8 @@ jobs:
         run: less version.txt
       - name: Build with Maven
         run: mvn verify
+      - name: debug master condition
+        run: echo ${{ github.ref_type }} and ${{ github.ref_name }}
   publish:
     runs-on: ubuntu-latest
     needs: [build]
