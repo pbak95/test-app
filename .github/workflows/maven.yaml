@@ -79,7 +79,7 @@ jobs:
 
           echo 'New version:' $RELEASE_VERSION
       - id: version-output-step
-        run: echo "::set-output name=version-output::${cat version.txt}"
+        run: echo '::set-output name=version-output::${cat version.txt}'
       - name: Upload version file
         uses: actions/upload-artifact@v2
         with:
