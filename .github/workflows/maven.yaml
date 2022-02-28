@@ -101,6 +101,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: version
+      - name: Building version
+        run: cat version.txt
       - run: sed -i -e "s/<version>local<\/version>/<version>${cat version.txt}<\/version>/" pom.xml
       - name: Build with Maven
         run: mvn verify
