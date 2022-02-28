@@ -133,7 +133,7 @@ jobs:
         with:
           name: version
       - id: read-version
-        run: echo '::set-output name=version::$(cat version.txt)'
+        run: echo "::set-output name=version::$(cat version.txt)"
       - name: Download JAR file
         uses: actions/download-artifact@v2
         with:
