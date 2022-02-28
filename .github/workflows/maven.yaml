@@ -132,6 +132,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: version
+      - id: read-version
+        run: echo '::set-output name=version::$(cat version.txt)'
       - name: Download JAR file
         uses: actions/download-artifact@v2
         with:
@@ -142,7 +144,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: localhost:5000/pbak95/test-app:$(cat version.txt)
+          tags: localhost:5000/pbak95/test-app:${{ steps.read-version.outputs.version }}
       - name: Inspect
         run: |
-          docker buildx imagetools inspect localhost:5000/pbak95/test-app:$(cat version.txt)
+          docker buildx imagetools inspect localhost:5000/pbak95/test-app:${{ steps.read-version.outputs.version }}
