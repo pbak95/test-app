@@ -46,7 +46,7 @@ jobs:
 
             let NEW_MINOR_NUM=$MINOR_NUM+1
 
-            echo $MAJOR_NUM.$NEW_MINOR_NUM.$PATCH_NUM-build.${GITHUB_SHA}
+            echo $MAJOR_NUM.$NEW_MINOR_NUM.$PATCH_NUM-build.$(git rev-parse --short HEAD)
           }
 
           # Fetch git tags with versions different than hotfix, ignore grep not match as a part of logic related with version initialisation
@@ -85,6 +85,7 @@ jobs:
         with:
           name: version
           path: version.txt
+          retention-days: 10
   build:
     runs-on: ubuntu-latest
     needs: calculate-version
@@ -111,6 +112,7 @@ jobs:
         with:
           name: app
           path: target/*.jar
+          retention-days: 10
   docker:
     runs-on: ubuntu-latest
     needs: build
