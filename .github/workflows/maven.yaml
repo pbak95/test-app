@@ -151,16 +151,10 @@ jobs:
     needs: [ calculate-version, docker ]
     if: ${{ github.ref_type == 'branch' && github.ref_name == 'main' }}
     steps:
-      - id: prepare-input
-        run: echo '::set-output name=deploy-input::$(cat <<EOF
-{ "app": "test-app", "version": "${{ needs.calculate-version.outputs.version }}" }  EOF
-  )'
-      - name: Debug output
-        run: echo ${{ steps.prepare-input.outputs.deploy-input }}
-#  - name: Invoke 'Deploy' workflow
-#    uses: benc-uk/workflow-dispatch@v1
-#    with:
-#      workflow: Deploy
-#      repo: pbak95/test-deployment
-#      token: ${{ secrets.CI_TOKEN }}
-#      inputs: '{ "app": "test-app", "version": "${{ needs.build.outputs.build_id }}" }'
+    - name: Invoke 'Deploy' workflow
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: Deploy
+        repo: pbak95/test-deployment
+        token: ${{ secrets.CI_TOKEN }}
+        inputs: '{ "app": "test-app", "version": "${{ needs.calculate-version.outputs.version }}" }'
