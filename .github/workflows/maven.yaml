@@ -3,13 +3,13 @@
 
 name: Java CI with Maven
 
-on: [push]
+on: [ push ]
 
 jobs:
   calculate-version:
     runs-on: ubuntu-latest
-#    outputs:
-#      version: ${{ steps.version-output-step.outputs.version-output }}
+    outputs:
+      version: ${{ steps.version-output-step.outputs.version-output }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -78,8 +78,8 @@ jobs:
           echo $RELEASE_VERSION > version.txt
 
           echo 'New version:' $RELEASE_VERSION
-#      - id: version-output-step
-#        run: echo '::set-output name=version-output::${RELEASE_VERSION}' #TODO not working
+      - id: version-output-step
+        run: echo '::set-output name=version-output::$(cat version.txt)' #TODO not working
       - name: Upload version file
         uses: actions/upload-artifact@v2
         with:
@@ -146,3 +146,21 @@ jobs:
           context: .
           push: true
           tags: pbak95/test-app:${{ steps.read-version.outputs.version }}
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    needs: [ calculate-version, docker ]
+    if: ${{ github.ref_type == 'branch' && github.ref_name == 'main' }}
+    steps:
+      - id: prepare-input
+        run: echo '::set-output name=deploy-input::$(cat <<EOF
+{ "app": "test-app", "version": "${{ needs.calculate-version.outputs.version }}" }  EOF
+  )'
+      - name: Debug output
+        run: echo ${{ steps.prepare-input.outputs.deploy-input }}
+#  - name: Invoke 'Deploy' workflow
+#    uses: benc-uk/workflow-dispatch@v1
+#    with:
+#      workflow: Deploy
+#      repo: pbak95/test-deployment
+#      token: ${{ secrets.CI_TOKEN }}
+#      inputs: '{ "app": "test-app", "version": "${{ needs.build.outputs.build_id }}" }'
