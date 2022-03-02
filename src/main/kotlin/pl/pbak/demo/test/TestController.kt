@@ -22,9 +22,9 @@ class TestController {
             summary = "Generates random UUID",
             tags = ["auth"])
     @ApiResponses(value = [
-        ApiResponse(responseCode = "201", description = "new UUID correlationId with signature was generated"),
+        ApiResponse(responseCode = "201", description = "new UUID was generated"),
     ])
-    fun generateSignedCorrelationId(): UUID {
+    fun generateUuid(): UUID {
         return UUID.randomUUID();
     }
 }
