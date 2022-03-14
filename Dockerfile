@@ -16,4 +16,6 @@ COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./
 COPY --from=builder application/ ./
 
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+COPY opentelemetry-javaagent.jar ./opentelemetry-javaagent.jar
+
+CMD ["java", "-Dotel.metrics.exporter=none -Dotel.exporter.otlp.endpoint=http://otel-collector.opensearch.svc.cluster.local:4317 -Dotel.resource.attributes=\"service.name=test-app\" -javaagent:\"opentelemetry-javaagent.jar\"", "org.springframework.boot.loader.JarLauncher"]
