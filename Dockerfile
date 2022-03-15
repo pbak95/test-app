@@ -21,4 +21,4 @@ COPY opentelemetry-javaagent.jar ./opentelemetry-javaagent.jar
 ENV OTEL_TRACES_EXPORTER=logging OTEL_METRICS_EXPORTER=logging OTEL_LOGS_EXPORTER=logging
 
 
-CMD ["java", "-Dotel.metrics.exporter=none -Dotel.traces.exporter=logging -Dotel.metrics.exporter=logging -Dotel.logs.exporter=logging -Dotel.exporter.otlp.endpoint=http://otel-collector.opensearch.svc.cluster.local:4317 -Dotel.javaagent.debug=true -javaagent:opentelemetry-javaagent.jar", "org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT java -Dotel.metrics.exporter=none -Dotel.traces.exporter=logging -Dotel.metrics.exporter=logging -Dotel.logs.exporter=logging -Dotel.exporter.otlp.endpoint=http://otel-collector.opensearch.svc.cluster.local:4317 -Dotel.javaagent.debug=true -javaagent:opentelemetry-javaagent.jar org.springframework.boot.loader.JarLauncher
