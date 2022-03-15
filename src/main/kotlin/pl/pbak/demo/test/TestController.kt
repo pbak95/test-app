@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -24,13 +26,35 @@ class TestController {
     @Operation(
             operationId = "generateRandomUuid",
             summary = "Generates random UUID",
-            tags = ["auth"])
+            tags = ["test"])
     @ApiResponses(value = [
         ApiResponse(responseCode = "201", description = "new UUID was generated"),
     ])
-    fun generateUuid(): UUID {
+    fun generateUuid(): ResponseEntity<UUID> {
         val uuid = UUID.randomUUID()
         logger.info("Generate uuid: $uuid")
-        return uuid
+        return ResponseEntity.status(HttpStatus.CREATED).body(uuid)
+    }
+
+    @GetMapping(value = ["/uuid-error"], produces = ["application/json"])
+    @Operation(
+            operationId = "generateRandomUuidWithError",
+            summary = "Generates random UUID with error",
+            tags = ["test"])
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "201", description = "new UUID was generated"),
+    ])
+    fun generateUuidWithError(): ResponseEntity<UUID> {
+        val uuid = UUID.randomUUID()
+        logger.info("Generating uuid: $uuid")
+
+        try {
+            throw NotImplementedError("test error")
+        } catch (e: Error) {
+            logger.error("some error message", e)
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        }
+
+        return ResponseEntity.of(Optional.of(uuid))
     }
 }
