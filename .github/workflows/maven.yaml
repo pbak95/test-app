@@ -12,7 +12,7 @@ jobs:
       version: ${{ steps.version-output-step.outputs.version-output }}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Calculate version
         shell: bash
         run: |
@@ -85,7 +85,7 @@ jobs:
     needs: calculate-version
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up JDK 16
         uses: actions/setup-java@v2
         with:
@@ -109,7 +109,7 @@ jobs:
     if: ${{ github.ref_type == 'branch' && github.ref_name == 'main' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
@@ -125,9 +125,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - name: Build and push to local registry
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: pbak95/test-app:${{ needs.calculate-version.outputs.version }}
   trigger-deploy:
