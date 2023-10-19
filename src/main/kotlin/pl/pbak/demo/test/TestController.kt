@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Slf4j
@@ -21,6 +23,22 @@ import java.util.*
 class TestController {
 
     val logger: Logger = LoggerFactory.getLogger(TestController::class.java)
+
+    @GetMapping(value = ["/date-time"], produces = ["application/json"])
+    @Operation(
+        operationId = "date-time",
+        summary = "Get current date and time",
+        tags = ["test"])
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "201", description = "new UUID was generated"),
+    ])
+    fun dateTime(): ResponseEntity<String> {
+        val currentDateTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val formattedDateTime = currentDateTime.format(formatter)
+        logger.info("Current date and time: $formattedDateTime")
+        return ResponseEntity.status(HttpStatus.CREATED).body(formattedDateTime)
+    }
 
     @GetMapping(value = ["/uuid"], produces = ["application/json"])
     @Operation(
